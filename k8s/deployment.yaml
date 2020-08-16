@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openvpn-deployment
+spec:
+  selector:
+    matchLabels:
+      app: openvpn
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: openvpn
+    spec:
+      containers:
+      - name: openvpn
+        image: localhost:32000/openvpn:latest 
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        envFrom:
+          - secretRef:
+              name: openvpn-secret
+        command: [./entrypoint.sh]
+        ports:
+        - containerPort: 1194
+        volumeMounts:
+        - mountPath: /etc/openvpn/server
+          name: nfs-openvpn
+      volumes:
+      - name: nfs-openvpn
+        nfs:
+          server: 10.0.0.3
+          path: "/home/lsangers/nfs/secrets/openvpn/server"
+
+          
+---
+kind: Service
+apiVersion: v1
+metadata: 
+  name: vpn-service
+spec:
+  type: LoadBalancer 
+  selector:
+    app: openvpn
+  ports:
+    - name: openvpn
+      protocol: TCP
+      port: 53
+      targetPort: 1194
+  loadBalancerIP: 10.0.2.252

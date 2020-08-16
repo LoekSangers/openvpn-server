@@ -1,0 +1,16 @@
+FROM ubuntu:latest
+
+LABEL maintainer="Loek Sangers <loeksangers@gmail.com>"
+
+RUN apt-get update && apt-get -y install \
+    openvpn \
+	iptables \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /home/openvpn
+COPY entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
