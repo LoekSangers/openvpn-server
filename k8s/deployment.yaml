@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: openvpn
-        image: localhost:32000/openvpn:latest 
+        image: loeksangers/openvpn-server:latest 
         securityContext:
           capabilities:
             add: ["NET_ADMIN"]
